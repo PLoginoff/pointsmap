@@ -66,15 +66,16 @@
         </style>
 
         <script src="/js/gmap-style.js"></script>
-        <script src="https://maps.googleapis.com/maps/api/js?key={{googleKey}}&amp;language=ru-RU"></script>
-        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet"  crossorigin="anonymous">
+        <script src="//maps.googleapis.com/maps/api/js?key={{googleKey}}&amp;language=ru-RU"></script>
+        <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet"  crossorigin="anonymous">
         <link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.5/css/bootstrap-select.min.css" rel="stylesheet"  crossorigin="anonymous">
         
         <script>
             var map;
 
             var geocoder = new google.maps.Geocoder();
-            var points = {{points_json|raw}};
+            var bounds   = new google.maps.LatLngBounds();
+            var points   = {{points_json|raw}};
             
             function initialize() {
                 map = new google.maps.Map(document.getElementById('map'), {
@@ -85,8 +86,6 @@
                     scaleControl: true
                 });
                 
-                changeCity('Москва');
-
                 var usRoadMapType = new google.maps.StyledMapType($gmapStyle);
                 map.mapTypes.set('beeline', usRoadMapType);
                 map.setMapTypeId('beeline');
@@ -105,13 +104,12 @@
                 });
 
                 $.each(points, function (key, one) {
-                    var marker = new google.maps.Marker({
+                    var marker = one.marker = new google.maps.Marker({
                         position: {lat: one.lat, lng: one.lng},
                         map: map,
                         title: one.name,
                         icon: $.extend({}, $icon, {fillColor: one.color})
                     });
-
                     google.maps.event.addListener(marker, 'mouseover', function () {
                         marker.setIcon($.extend({}, marker.getIcon(), {scale: 11}));
                     });
@@ -123,21 +121,29 @@
                         infowindow.setContent('<h3>' + one.name + '</h3><br />' + one.address);
                         infowindow.open(map, marker);
                     });
+
+                    bounds.extend(marker.getPosition());
                 });
+                
+                map.fitBounds(bounds);
             }
 
             function changeCity(city) {
-                geocoder.geocode({'address': city}, function (results, status) {
-                    if (status === google.maps.GeocoderStatus.OK) {
-                        var resultBounds = new google.maps.LatLngBounds(
-                                results[0].geometry.viewport.getSouthWest(),
-                                results[0].geometry.viewport.getNorthEast()
-                                );
-                        // map.fitBounds(resultBounds);                            
-                        map.fitBounds(results[0].geometry.viewport);
-                        // map.setZoom(13);
-                    }
-                });
+                if ( city === 'ALL' ) {
+                    map.fitBounds(bounds);
+                } else {
+                    geocoder.geocode({'address': city}, function (results, status) {
+                        if (status === google.maps.GeocoderStatus.OK) {
+                            var resultBounds = new google.maps.LatLngBounds(
+                                    results[0].geometry.viewport.getSouthWest(),
+                                    results[0].geometry.viewport.getNorthEast()
+                                    );
+                            // map.fitBounds(resultBounds);                            
+                            map.fitBounds(results[0].geometry.viewport);
+                            // map.setZoom(13);
+                        }
+                    });
+                }
             }
 
             google.maps.event.addDomListener(window, 'load', initialize);
@@ -159,15 +165,27 @@
             </div>
             <div>
                 <select id="cities" class="selectpicker" title="Выберите город..." data-live-search="true" data-live-search-placeholder="Выберите город...">
-                        <option data-hidden="true"></option>
-                        <option data-icon="glyphicon-globe">Россия</option>
-                        <option data-icon="glyphicon-star">Москва</option>
-                        <option data-divider="true"></option>
-                        {% for city in cities %}
-                            <option data-icon="glyphicon-map-marker">{{city}}</option>
-                        {% endfor %}
+                    <option data-hidden="true"></option>
+                    <option data-icon="glyphicon-globe" value="ALL">Россия</option>
+                    <option data-icon="glyphicon-star">Москва</option>
+                    <option data-icon="glyphicon-star">Санкт-Петербург</option>
+                    <option data-divider="true"></option>
+                    {% for city in cities %}
+                        <option data-icon="glyphicon-map-marker">{{city}}</option>
+                    {% endfor %}
                 </select>                
             </div>
+                
+            <div>
+                <select id="networks" class="selectpicker btn-warning" title="Выберите сеть..." {# TODO multiple #} >
+                    <option value="ALL" data-icon="glyphicon-globe">Все сети</option>
+                    <option data-divider="true"></option>
+                    {% for n in networks %}
+                        <option data-icon="glyphicon glyphicon-plus">{{n}}</option>
+                    {% endfor %}
+                </select>                
+            </div>
+                
             <div>
                 <a class="btn btn-info" href="/data/list.xlsx">
                     Исходник
@@ -200,6 +218,17 @@
 
                 $('#cities').change(function (e) {
                     changeCity($(this).val());
+                });
+                
+                $('#networks').change(function (e) {
+                    var network = $(this).val();
+                    $.each(points, function (key, one) {
+                        if ( one.network === network || network === 'ALL' ) {
+                            one.marker.setMap(map);
+                        } else {
+                            one.marker.setMap(null);
+                        }
+                    });
                 });
                 
             </script>

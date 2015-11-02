@@ -23,10 +23,11 @@ $app->get('/gmap', function () use ($app) {
     }
 
     
-    $data = array_map(function($o){
-        if ( ! ($o['id'] + $o['lat']) ) {
-            return;
+    $data = map(function($o){
+        if ( ! $o['id'] || ! $o['lat'] || ! $o['lng'] ) {
+            return false;
         }
+        $o['id']  = (int)   $o['id'];
         $o['lat'] = (float) $o['lat'];
         $o['lng'] = (float) $o['lng'];
         return $o;
@@ -45,12 +46,15 @@ $app->get('/gmap', function () use ($app) {
             [lat] => 54.91093
 */        
 
-    $cities = array_unique(array_column($data, 'city'));
+    $cities     = array_unique(array_column($data, 'city'));
+    $networks   = array_unique(array_column($data, 'network'));
+    
     $points = $data;
 
     return $app->render('gmap.html.twig', [
         'googleKey'     => 'AIzaSyD8Es0kDvisoOlfohg7KCeGAzI8GGW79bA',
         'cities'        => $cities,
+        'networks'      => $networks,
         'points'        => $points,
         'points_json'   => json_encode($points, JSON_UNESCAPED_UNICODE)
     ]);
@@ -58,3 +62,7 @@ $app->get('/gmap', function () use ($app) {
 
 $app->run();
 
+
+function map($fn, $array){
+    return array_filter(array_map($fn, $array));
+}
