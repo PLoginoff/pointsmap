@@ -1,0 +1,9 @@
+{
+    "require": {
+        "silex/silex": "~1.3",
+        "twig/twig": "^1.23",
+        "symfony/twig-bridge": "^2.7",
+        
+        "lazuli/vsxlsx": "0.0.1"
+    }
+}
