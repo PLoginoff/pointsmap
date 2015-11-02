@@ -1,6 +1,6 @@
 # http://stackoverflow.com/questions/20591204/configure-htaccess-to-work-on-a-php-framework-silex
 
-Options -MultiViews
+# Options -MultiViews
 
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
