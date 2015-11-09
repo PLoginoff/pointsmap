@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>GASTRO</title>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+        <link rel="stylesheet" href="/css/jquery.fancybox.css" />
+        <link rel="stylesheet" href="/css/main.css" />
+
+        <script src="/js/gmap-style.js"></script>
+        <script src="//maps.googleapis.com/maps/api/js?key={{googleKey}}&amp;language=ru-RU"></script>
+        {#
+        <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet"  crossorigin="anonymous">
+        <link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.7.5/css/bootstrap-select.min.css" rel="stylesheet"  crossorigin="anonymous">
+        #}
+        <script>
+            var map;
+
+            var geocoder = new google.maps.Geocoder();
+            var bounds = new google.maps.LatLngBounds();
+            var points = {{points_json|raw}};
+                    function initialize() {
+                        map = new google.maps.Map(document.getElementById('map'), {
+                            zoom: 12,
+                            center: {lat: 59.94, lng: 30.31},
+                            disableDefaultUI: true,
+                            zoomControl: true,
+                            scaleControl: true
+                        });
+
+                        var usRoadMapType = new google.maps.StyledMapType($gmapStyle);
+                        map.mapTypes.set('beeline', usRoadMapType);
+                        map.setMapTypeId('beeline');
+
+                        $icon = {
+                            path: google.maps.SymbolPath.CIRCLE,
+                            scale: 7,
+                            fillOpacity: 0.9,
+                            strokeOpacity: 0.0,
+                            fillColor: '#f6bc00'
+                        };
+
+                        var infowindow = new google.maps.InfoWindow({
+                            content: 'content',
+                            maxWidth: 200
+                        });
+
+                        $.each(points, function (key, one) {
+                            var marker = one.marker = new google.maps.Marker({
+                                position: {lat: one.lat, lng: one.lng},
+                                map: map,
+                                title: one.name,
+                                icon: $.extend({}, $icon, {fillColor: one.color})
+                            });
+                            google.maps.event.addListener(marker, 'mouseover', function () {
+                                marker.setIcon($.extend({}, marker.getIcon(), {scale: 11}));
+                            });
+                            google.maps.event.addListener(marker, 'mouseout', function () {
+                                marker.setIcon($.extend({}, marker.getIcon(), {scale: 8}));
+                            });
+                            google.maps.event.addListener(marker, 'click', function () {
+                                infowindow.close();
+                                infowindow.setContent('<h3>' + one.name + '</h3><br />' + one.street);
+                                infowindow.open(map, marker);
+                            });
+
+                            bounds.extend(marker.getPosition());
+                        });
+
+                        map.fitBounds(bounds);
+                    }
+
+            function changeCity(city) {
+                if (city === 'ALL') {
+                    map.fitBounds(bounds);
+                } else {
+                    geocoder.geocode({'address': city}, function (results, status) {
+                        if (status === google.maps.GeocoderStatus.OK) {
+                            var resultBounds = new google.maps.LatLngBounds(
+                                    results[0].geometry.viewport.getSouthWest(),
+                                    results[0].geometry.viewport.getNorthEast()
+                                    );
+                            // map.fitBounds(resultBounds);                            
+                            map.fitBounds(results[0].geometry.viewport);
+                            // map.setZoom(13);
+                        }
+                    });
+                }
+            }
+
+            google.maps.event.addDomListener(window, 'load', initialize);
+        </script>
+    </head>
+    <body>
+        <div class="header">
+            <div class="top-logo-line">
+                <span>СПЕШИТЕ!</span> Только с <span>9</span> ноября по <span>31</span> декабря 2015 года!
+            </div><!--end top-logo-line-->
+        </div><!--end header-->
+        <div class="main-content">
+            <div class="wrapper">
+                <div class="intro curved-hz">
+                    <div class="intro_inside">
+                        <div class="intro-descr">
+                            <div class="intro-top-text">Препарат высокого качества <br>
+                                от известной компании-производителя</div>
+                            <div class="intro-info">для лечения гастроэзофагеальной рефлюксной болезни (ГЭРБ), а также комплексной <br>
+                                терапии язвенной болезни желудка и двенадцатиперстной кишки (ЯБ)</div>
+                            <div class="intro-sale-30">НА <span>30%</span></div>
+                            <div class="intro-sale">дешевле!</div>
+                        </div><!--end intro-descr-->
+                        <div class="globe"></div>
+                    </div>	
+                </div><!--end intro-->
+                <div class="share-info">
+                    <div class="share-descr">
+                        <div class="share-box">
+                            <div class="top-share-box">
+                                <div class="user"></div>
+                            </div><!--end top-share-box-->
+                            <div class="user-intro">
+                                для кого предназначена акция?
+                            </div><!--end box-info-->
+                            <div class="share-box-info">
+                                Если у Вас ЯБ или ГЭРБ, и врач Вам назначил препарат, участвующий в акции, то эта акция предназначена для Вас.
+                            </div><!--end share-box-info-->
+                        </div><!--end share-box-->	
+                        <div class="share-box">
+                            <div class="top-share-box">
+                                <div class="question"></div>
+                            </div><!--end top-share-box-->
+                            <div class="user-intro">
+                                Как стать участником акции?
+                            </div><!--end box-info-->
+                            <div class="share-box-info">
+                                Чтобы стать участником акции и приобрести препарат с экономией 30%, необходимо обратиться с рецептом в одну из аптек-участниц акции.
+                            </div><!--end share-box-info-->
+                        </div><!--end share-box-->	
+                        <div class="share-box">
+                            <div class="top-share-box">
+                                <div class="verified"></div>
+                            </div><!--end top-share-box-->
+                            <div class="user-intro">
+                                Условия акции
+                            </div><!--end box-info-->
+                            <div class="share-box-info">
+                                По акции Вы можете приобрести препарат для лечения ЯБ и ГЭРБ, назначенный Вашим лечащим врачом, на <strong>30%</strong> дешевле!
+                            </div><!--end share-box-info-->
+                        </div><!--end share-box-->
+                        <div class="share-box">
+                            <div class="top-share-box">
+                                <div class="calendar"></div>
+                            </div><!--end top-share-box-->
+                            <div class="user-intro">
+                                Сроки акции:
+                            </div><!--end box-info-->
+                            <div class="share-box-info">
+                                Только с <b>9</b> ноября по <b>31</b> декабря 2015 года! Спешите!
+                            </div><!--end share-box-info-->
+                        </div><!--end share-box-->			
+                    </div>
+                </div><!--end share-info-->
+                <div class="choise-of-pharmacy curved-hz">
+                    <div class="choise-of-pharmacy_inside">
+                        <div class="choise-head">
+                            <div class="choise-top-line">
+                                Аптеки-участницы программы:
+                            </div><!--end choise-top-line-->
+                        </div><!--end choise-header-->
+                        <div class="control-bar curved-hz">
+                            <div class="control-bar_inside">
+                                <div class="choise-city">
+                                    <a class="main-item" href="#">Город</a> 
+                                    <ul class="sub-menu" id="cities"> 
+                                        <li>
+                                            <a href="#" data-city="ALL">Россия</a>
+                                        </li>
+                                        {% for city in cities %}
+                                            <li>
+                                                <a href="#" data-city="{{city}}">{{city}}</a>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div><!--end choise-city-->
+                                <div class="choise-pharmacy">
+                                    <a class="main-item" href="#">Аптечные сети</a> 
+                                    <ul class="sub-menu" id="networks"> 
+                                        {% for n in networks %}
+                                            <li>
+                                                <a href="#">{{n}}</a>
+                                            </li> 
+                                        {% endfor %}
+                                    </ul>
+                                </div><!--end choise-pharmacy-->
+
+                                <div class="search">
+                                    <form action="" method="get">
+                                        <input type="text" placeholder="Поиск аптеки" value="" name="search">
+                                        <input type="submit" value="">
+                                    </form>
+                                </div>
+                            </div>
+                        </div><!--end control-bar-->
+                        <div class="maps curved-hz-b">
+                            <div id="map"></div>
+                        </div><!--end maps-->
+                        <div class="list-address">
+                            <ul>
+                                {% for p in search %}
+                                    <li class="">
+                                        <span class="address_name">{{p.name}}</span> 
+                                        <span class="address_city">{{p.city}}</span> 
+                                        <span class="address_line">{{p.street}}</span>
+                                        <span class="address_line">{{p.phone}}</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div><!--end list-address-->
+                    </div>	
+                </div><!--end choise-of-pharmacy-->
+                <div class="feedback">
+                    <div class="left-col">
+                        <ul>
+                            <li><a href="javascript:;" class="fancybox-manual-b" data-page="/help1.html">Сообщить о рекламации на лекарственный препарат</a></li>
+                            <li><a href="javascript:;" class="fancybox-manual-b" data-page="/help3.html">Политика конфиденциальности</a></li>
+                        </ul>
+                    </div><!--end left-col-->
+                    <div class="right-col">
+                        <ul>
+                            <li><a href="javascript:;" class="fancybox-manual-b" data-page="/help2.html">Сообщить о побочном действии</a></li>
+                            <li><a href="javascript:;" class="fancybox-manual-b" data-page="/help4.html">Контактная информация</a></li>
+                        </ul>
+                    </div><!--end right-col-->
+                </div><!--end feedback-->
+                <div class="footer">
+                    <div class="health-warning">
+                        ИМЕЮТСЯ ПРОТИВИПОКАЗАНИЯ. ПЕРЕД ПРИМЕНЕНИЕМ ПРЕПАРАТА НЕОБХОДИМО ОЗНАКОМИТЬСЯ С ИНСТРУКЦИЕЙ ПО ПРИМЕНЕНИЮ И ПОЛУЧИТЬ КОНСУЛЬТАЦИЮ СПЕЦИАЛИСТА.
+                    </div><!--end heals-warning-->
+                    <div class="copyright">
+                        © 2015 «<a href="http://www.astrazeneca.ru/">AstraZeneca</a>» (перейти на официальный сайт) Все права защищены.
+                    </div>
+                </div><!--end health-warning-->
+            </div><!--end wrapper-->
+        </div><!--end main-content-->
+    </body>
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+    <script src="http://yandex.st/jquery/2.1.0/jquery.min.js" type="text/javascript"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js" type="text/javascript"></script>
+
+    <script src="https://googlemaps.github.io/js-marker-clusterer/src/markerclusterer.js" type="text/javascript"></script>
+    
+    <script src="js/jquery.fancybox.js" type="text/javascript"></script>
+
+    <script  type="text/javascript">
+            $('.choise-city li a').click(function (e) {
+                var $d = $(this);
+                changeCity($d.data('city'));
+                $('.sub-menu').slideUp('fast');
+                $('.main-item').removeClass('open');
+            });
+
+            $('.choise-pharmacy li a').click(function (e) {
+                var network = $(this).html();
+                $.each(points, function (key, one) {
+                    if (one.network === network || network === 'ALL') {
+                        one.marker.setMap(map);
+                    } else {
+                        one.marker.setMap(null);
+                    }
+                });
+                $('.sub-menu').slideUp('fast');
+                $('.main-item').removeClass('open');
+            });
+
+            $('.control-bar').on('click', '.main-item', function (e) {
+                e.preventDefault();
+
+                if ($(this).hasClass('open')) {
+                    $(this).removeClass('open');
+                    $(this).next().slideUp('fast');
+                } else {
+                    $(this).addClass('open');
+                    $(this).next().slideDown('fast');
+                }
+            });
+
+            $(".fancybox-manual-b").click(function () {
+                $.fancybox.open({
+                    type: 'iframe',
+                    href: $(this).data('page'),
+                    padding: 15,
+                    width: 800,
+                    height: 800
+                });
+            });
+
+            $(document).mouseup(function (e) {
+                var container = $(".sub-menu");
+                var parlink = $('.control-bar').find('.main-item');
+
+                if (!container.is(e.target) && container.has(e.target).length === 0) {
+                    container.slideUp('fast');
+                }
+            });
+
+    </script>
+</html>
