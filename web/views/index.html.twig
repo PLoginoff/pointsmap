@@ -49,6 +49,9 @@
                     });
                     google.maps.event.addListener(marker, 'mouseover', function () {
                         marker.setIcon($.extend({}, marker.getIcon(), {scale: 11}));
+                        infowindow.close();
+                        infowindow.setContent('<h3>' + one.name + '</h3><br />' + one.street);
+                        infowindow.open(map, marker);
                     });
                     google.maps.event.addListener(marker, 'mouseout', function () {
                         marker.setIcon($.extend({}, marker.getIcon(), {scale: 8}));
@@ -87,16 +90,29 @@
 
                 google.maps.event.addListenerOnce(map, 'tilesloaded', function(){
                     initPoints();
+                    changeStores();
                     map.addListener('bounds_changed', _.debounce(function () {
-                        var $new = ['<li><a href="javascript:;">' + 'Все' + '</a></li>'];
-                        for (var i = points.length, bounds = map.getBounds(); i--; ) {
-                            if (bounds.contains(points[i].marker.getPosition())) {
-                                $new.push('<li><a href="javascript:;">' + points[i].network + '</a></li>');
-                            }
-                        }
-                        $('ul#networks').html($.unique($new).join(''));
+                        changeStores();
                     }, 750));                    
                 });
+            }
+
+            function changeStores() {
+                var $new = [],
+                        $list = '';
+                for (var i = points.length, bounds = map.getBounds(); i--; ) {
+                    if (bounds.contains(points[i].marker.getPosition())) {
+                        $new.push(points[i].network);
+                    }
+                }
+                
+                $new = $.unique($new).sort();
+                $new.unshift('Все')
+                $.each($new, function(key, val){
+                    $list +=  '<li><a href="javascript:;">' + val + '</a></li>'
+                });
+                
+                $('ul#networks').html($list);
             }
 
             function changeCity(city) {
@@ -116,6 +132,25 @@
                     });
                 }
             }
+
+            function changeNetwork(network) {
+                if (markerClusterer) {
+                    markerClusterer.clearMarkers();
+                    markers = [];
+                }                
+
+                $.each(points, function (key, one) {
+                    if (one.network === network || network === 'Все') {
+                        markers.push(one.marker);
+                    }
+                });
+
+                markerClusterer = new MarkerClusterer(map, markers, {
+                    maxZoom: 20,
+                    gridSize: 20,
+                });                
+            }
+                    
 
             google.maps.event.addDomListener(window, 'load', initialize);
             
@@ -204,7 +239,7 @@
                                     <a class="main-item" href="javascript:;">Город</a> 
                                     <ul class="sub-menu" id="cities"> 
                                         <li>
-                                            <a href="#" data-city="ALL">Россия</a>
+                                            <a href="javascript:;" data-city="ALL">Россия</a>
                                         </li>
                                         {% for city in cities %}
                                             <li>
@@ -288,6 +323,7 @@
         <script  type="text/javascript">
                 $('.choise-city li a').click(function (e) {
                     var $d = $(this);
+                    changeNetwork('Все');
                     changeCity($d.data('city'));
                     $('.sub-menu').slideUp('fast');
                     $('.main-item').removeClass('open');
@@ -295,23 +331,7 @@
 
                 $('.choise-pharmacy ul').on('click', 'a', function (e) {
                     var network = $(this).html();
-
-                    if (markerClusterer) {
-                        markerClusterer.clearMarkers();
-                        markers = [];
-                    }                
-
-                    $.each(points, function (key, one) {
-                        if (one.network === network || network === 'Все') {
-                            markers.push(one.marker);
-                        }
-                    });
-
-                    markerClusterer = new MarkerClusterer(map, markers, {
-                        maxZoom: 20,
-                        gridSize: 20,
-                    });                
-
+                    changeNetwork(network);
                     $('.sub-menu').slideUp('fast');
                     $('.main-item').removeClass('open');
                 });
