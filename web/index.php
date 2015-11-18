@@ -68,25 +68,29 @@ $app->get('/',
         throw new Exception(implode(', ', $parser->get_errors()));
     }
 
-    $data = map(function($o) {
-        if (!$o['id'] || !$o['network'] || !$o['city']) {
+    $GLOBALS['i'] = $i = 1001;
+    // use isn't used
+    $data = map(function($o) use ($i) {
+        if (!$o['network'] || !$o['city']) {
             return false;
         }
-        $o['id'] = (int) $o['id'];
 
         $coors = geoCoder($o['fulladdress']);
         if (!$coors) {
             return false;
         }
 
-        $o['lat'] = (float) $coors[1];
-        $o['lng'] = (float) $coors[0];
-
-        $o['color'] = '#5c47b4';
-        $o['name'] = $o['network'];
-
-
-        return $o;
+        return array(
+            'id'        => $GLOBALS['i']++,
+            'city'      => $o['city'],
+            'street'    => $o['street'],
+            'phone'     => $o['phone'] ?: null,
+            'lat'       => (float) $coors[1],
+            'lng'       => (float) $coors[0],
+            'network'   => $o['network'],
+            'name'      => $o['network'],
+            'color'     => '#5c47b4'
+        );
     }, $parser->get_parsed());
 
     $cities   = array_unique(array_column($data, 'city'));
