@@ -2,9 +2,10 @@
 // web/index.php
 require_once __DIR__.'/../vendor/autoload.php';
 
+use Symfony\Component\HttpFoundation\Response;
+
 class Application extends Silex\Application
 {
-
     use Silex\Application\TwigTrait;
 }
 $app          = new Application();
@@ -14,9 +15,10 @@ $app['file']  = 'list.xlsx';
 mb_internal_encoding('UTF-8');
 
 $app->register(new Silex\Provider\TwigServiceProvider(),
-    array(
-    'twig.path' => __DIR__.'/views',
-));
+    [
+        'twig.path' => __DIR__.'/views',
+    ]
+);
 
 $app->get('/gmap',
     function () use ($app) {
@@ -58,7 +60,7 @@ $app->get('/gmap',
             'networks' => $networks,
             'points' => $points,
             'points_json' => json_encode($points, JSON_UNESCAPED_UNICODE)
-    ]);
+            ]);
 });
 
 $app->get('/',
@@ -68,10 +70,10 @@ $app->get('/',
         throw new Exception(implode(', ', $parser->get_errors()));
     }
 
-    $GLOBALS['i'] = $i = 1001;
+    $i = 1001;
     // use isn't used
-    $data = map(function($o) use ($i) {
-        if (!$o['network'] || !$o['city']) {
+    $data = map(function($o) use (&$i) {
+        if (!$o['network'] || !$o['city'] || !$o['fulladdress']) {
             return false;
         }
 
@@ -80,8 +82,8 @@ $app->get('/',
             return false;
         }
 
-        return array(
-            'id'        => $GLOBALS['i']++,
+        return [
+            'id'        => $i++,
             'city'      => $o['city'],
             'street'    => $o['street'],
             'phone'     => $o['phone'] ?: null,
@@ -90,7 +92,7 @@ $app->get('/',
             'network'   => $o['network'],
             'name'      => $o['network'],
             'color'     => '#5c47b4'
-        );
+        ];
     }, $parser->get_parsed());
 
     $cities   = array_unique(array_column($data, 'city'));
@@ -107,18 +109,19 @@ $app->get('/',
             }
         }, $points);
     } else {
-        $search = array();
+        $search = [];
     }
     $search = array_slice($search, 0, 25);
 
     return $app->render('index.html.twig',
-            [
-            'googleKey' => 'AIzaSyD8Es0kDvisoOlfohg7KCeGAzI8GGW79bA',
-            'cities' => $cities,
-            'networks' => $networks,
-            'search'   => $search,
-            'points_json' => json_encode($points, JSON_UNESCAPED_UNICODE)
-    ]);
+        [
+            'googleKey'     => 'AIzaSyD8Es0kDvisoOlfohg7KCeGAzI8GGW79bA',
+            'cities'        => $cities,
+            'networks'      => $networks,
+            'search'        => $search,
+            'points_json'   => json_encode($points, JSON_UNESCAPED_UNICODE)
+        ],
+        new Response(null, 200, ['Cache-Control' => 's-maxage=3600, public']));
 });
 
 $app->run();
