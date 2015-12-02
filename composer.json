@@ -4,6 +4,7 @@
         "twig/twig": "^1.23",
         "symfony/twig-bridge": "^2.7",
         
-        "lazuli/vsxlsx": "0.0.1"
+        "lazuli/vsxlsx": "0.0.1",
+        "jbinfo/mobile-detect-service-provider": "~1"
     }
 }

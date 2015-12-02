@@ -3,6 +3,7 @@
 require_once __DIR__.'/../vendor/autoload.php';
 
 use Symfony\Component\HttpFoundation\Response;
+use Binfo\Silex\MobileDetectServiceProvider;
 
 class Application extends Silex\Application
 {
@@ -19,60 +20,17 @@ $app->register(new Silex\Provider\TwigServiceProvider(),
         'twig.path' => __DIR__.'/views',
     ]
 );
-
-$app->get('/gmap',
-    function () use ($app) {
-    $parser = new VSXLSX\Parser(__DIR__.'/data/'.$app['file']);
-    if (!$parser->parse()) {
-        throw new Exception(implode(', ', $parser->get_errors()));
-    }
-
-    $data = map(function($o) {
-        if (!$o['id'] || !$o['network'] || !$o['city']) {
-            return false;
-        }
-        $o['id'] = (int) $o['id'];
-
-        $coors = geoCoder($o['fulladdress']);
-        if (!$coors) {
-            return false;
-        }
-
-        $o['lat'] = (float) $coors[1];
-        $o['lng'] = (float) $coors[0];
-
-        $o['color'] = '#5c47b4';
-        $o['name'] = $o['network'];
+$app->register(new MobileDetectServiceProvider());
 
 
-        return $o;
-    }, $parser->get_parsed());
-
-    $cities   = array_unique(array_column($data, 'city'));
-    $networks = array_unique(array_column($data, 'network'));
-
-    $points = array_slice($data, 0, 25);
-
-    return $app->render('gmap.html.twig',
-            [
-            'googleKey' => 'AIzaSyD8Es0kDvisoOlfohg7KCeGAzI8GGW79bA',
-            'cities' => $cities,
-            'networks' => $networks,
-            'points' => $points,
-            'points_json' => json_encode($points, JSON_UNESCAPED_UNICODE)
-            ]);
-});
-
-$app->get('/',
-    function () use ($app) {
+$app['points'] = function() use ($app) {
     $parser = new VSXLSX\Parser(__DIR__.'/data/'.$app['file']);
     if (!$parser->parse()) {
         throw new Exception(implode(', ', $parser->get_errors()));
     }
 
     $i = 1001;
-    // use isn't used
-    $data = map(function($o) use (&$i) {
+    return map(function($o) use (&$i) {
         if (!$o['network'] || !$o['city'] || !$o['fulladdress']) {
             return false;
         }
@@ -94,26 +52,52 @@ $app->get('/',
             'color'     => '#5c47b4'
         ];
     }, $parser->get_parsed());
+};
 
-    $cities   = array_unique(array_column($data, 'city'));
-    $networks = array_unique(array_column($data, 'network'));
-
-    $points = $data;
-
-    if ( isset( $_GET['search'] ) ) {
+$app['search'] = function() use ($app) {
+    if ( $_GET['search'] ) {
         $search = map(function($o){
             if (mb_stripos($o['network'], $_GET['search']) !== false) {
                 return $o;
             } else {
                 return false;
             }
-        }, $points);
+        }, $app['points']); // fixme
     } else {
         $search = [];
     }
     $search = array_slice($search, 0, 25);
+    return $search;
+};
+
+$app->get('/',  function () use ($app) {
+    if( $app["mobile_detect"]->isMobile() && !$app["mobile_detect"]->isTablet() ){
+        return $app->redirect('/mobile');
+    }
+
+    $points     = $app['points'];
+    $cities     = array_unique(array_column($points, 'city'));
+    $networks   = array_unique(array_column($points, 'network'));
+    $search     = $app['search'];
 
     return $app->render('index.html.twig',
+        [
+            'googleKey'     => 'AIzaSyD8Es0kDvisoOlfohg7KCeGAzI8GGW79bA',
+            'cities'        => $cities,
+            'networks'      => $networks,
+            'search'        => $search,
+            'points_json'   => json_encode($points, JSON_UNESCAPED_UNICODE)
+        ],
+        new Response(null, 200, ['Cache-Control' => 's-maxage=3600, public']));
+});
+
+$app->get('/mobile',  function () use ($app) {
+    $points     = $app['points'];
+    $cities     = array_unique(array_column($points, 'city'));
+    $networks   = array_unique(array_column($points, 'network'));
+    $search     = $app['search'];
+
+    return $app->render('mobile.html.twig',
         [
             'googleKey'     => 'AIzaSyD8Es0kDvisoOlfohg7KCeGAzI8GGW79bA',
             'cities'        => $cities,
