@@ -5,15 +5,34 @@
 	margin: 0;
 }
 
+html {
+	-webkit-text-size-adjust: none;
+}
+
 body {
 	font-family: 'Open Sans', sans-serif;
 	background-color: #fff;
 	color: #000;
 	padding-bottom: 30px;
+	margin-left: auto;
+	margin-right: auto;
+	max-width: 990px;
 }
 
 .yellow_color {
 	color: #fec734;
+}
+
+.text-uppercase {
+	text-transform: uppercase;
+}
+
+.text-left {
+	text-align: left !important;
+}
+
+.semibold {
+	font-weight: 600;
 }
 
 .main_header {
@@ -57,24 +76,26 @@ body {
 
 .amount_percentage {
 	overflow: hidden;
+	margin: 2% auto 0;
+	max-width: 320px;
 }
 
 .img_santa {
 	float: right;
-	max-width: 120px;
+	max-width: 45%;
 }
 
 .amount_percentage_cont {
 	float: left;
 	max-width: 50%;
 	text-transform: uppercase;
-	padding-top: 22px;
+	padding-top: 8%;
 	position: relative;
 }
 
 .amount_percentage_cont .snowflake {
 	position: absolute;
-	top: 10px;
+	top: 15%;
 	right: 20%;
 	z-index: 3;
 	max-width: 35%;
@@ -306,6 +327,11 @@ ul.tabs {
 	font-size: 0;
 	margin-bottom: 2px;
 	padding: 0 16px;
+	max-width: 640px;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-o-box-sizing: border-box;
+	box-sizing: border-box;
 }
 
 ul.tabs li {
@@ -339,6 +365,16 @@ ul.tabs li.current {
 	background-color: #5c47b4;
 }
 
+.search_main_box {
+	background-color: #e1e1e1;	
+	padding-bottom: 10px;
+	padding-top: 10px;
+}
+
+.tabs_ctr {
+	background-color: #e1e1e1;
+}
+
 .tabs_ctr .tab {
 	display: none;
 }
@@ -358,7 +394,7 @@ ul.tabs li.current {
 	background-color: #5c47b4;
 	border: none;
 	color: white;
-	font-weight: 800;
+	font-weight: 600;
 	text-transform: uppercase;
 	font-size: 14px;
 	padding: 0;
@@ -369,6 +405,7 @@ ul.tabs li.current {
 	position: absolute;
 	right: 0;
 	top: 0;
+	font-family: 'Open Sans', sans-serif;
 }
 
 .search_map .field {
@@ -417,7 +454,8 @@ ul.tabs li.current {
 	border: none;
 	background: none;
 	width: 100%;
-	font-size: 14px;
+	font-size: 13px;
+	font-family: 'Open Sans', sans-serif;
 }
 
 .search_map .field input:focus {
@@ -442,7 +480,7 @@ ul.tabs li.current {
 }
 
 .select_map {
-	margin: 0 16px 10px;
+	margin: 0 60px 0 16px;
 	position: relative;
 	height: 30px;
 	background-color: white;
@@ -461,6 +499,8 @@ ul.tabs li.current {
   	border: none;
   	padding: 4px 35px 6px 26px;
   	z-index: 5;
+  	font-family: 'Open Sans', sans-serif;
+  	font-size: 13px;
 }
 
 .select_map:before {
@@ -579,6 +619,12 @@ ul.tabs li.current {
 	padding-top: 12px;
 	padding-bottom: 12px;
 	position: relative;
+}
+
+.page-header.page-header-sm {
+	font-size: 16px;
+	padding-left: 16px;
+	padding-right: 16px;
 }
 
 .back-page {
@@ -713,23 +759,59 @@ ul.tabs li.current {
 	color: #aca8a8;
 }
 
+@media screen and (min-width: 640px) {
 
+	.amount_percentage {
+		max-width: 640px;
+	}
 
+	.amount_percentage_cont .small_text {
+		font-size: 32px;
+		line-height: 40px;
+	}
 
+	.amount_percentage_cont .large_text {
+		font-size: 80px;
+		line-height: 88px;
+	}
 
+	.amount_percentage_cont .middle_text {
+		font-size: 52px;
+	}
 
-
-
-/* fixes */
-
-.maps {
-	width: 100%;
-	height: 410px;
-	position: relative;
-	overflow: hidden;
 }
 
-#map 
-{
-   height: 100%;
+
+
+
+
+.map {
+    height: 400px;
+}
+
+.select_map {
+    padding-left: 21px;
+    margin: 0 16px 0 16px;    
+}
+
+
+
+.search_map select {
+    width: 100%;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    position: relative;
+    border: none;
+    background: transparent;
+    border: none;
+    padding: 4px 35px 6px 26px;
+    z-index: 5;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 13px;
+}
+
+.search_map .field {
+    padding-right: 8px;
 }
