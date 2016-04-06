@@ -8,7 +8,7 @@
 body {
   margin: 0;
   padding: 0;
-  background: #dcccf5 url(img/snow-bg.png) repeat-y center;
+  background: #caebfe url(img/bg-clouds.jpg) no-repeat top;
   font-family: 'Open Sans', sans-serif;
   font-size: 14px;
   color: #000000;
@@ -96,7 +96,7 @@ body {
 }
 
 .intro_inside {
-	background: #fff url(img/logo-snow-bg.png) no-repeat center;
+	background: #fff url(img/header.jpg) no-repeat center;
 	padding: 18px 50px 25px;
 	position: relative;
 	z-index: 2;
@@ -141,6 +141,7 @@ body {
 	line-height: 1;
 }
 
+/*
 .globe {
 	width: 275px;
 	height: 247px;
@@ -149,6 +150,7 @@ body {
 	right: 13px;
 	position: absolute;
 }
+*/
 
 .share-info {
 	width: 100%;
@@ -164,8 +166,8 @@ body {
 }
 
 .share-box {
-	width: 195px;
-	min-height: 342px;
+	width: 266px;
+	min-height: 360px;
 	background-color: #fff;
 	display: inline-block;
 	vertical-align: top;
@@ -203,7 +205,7 @@ body {
 	font-size: 15px;
 	font-weight: 700;
 	line-height: 18px;
-	width: 155px;
+	width: 225px;
 	padding: 0 20px;
 }
 
