@@ -821,3 +821,24 @@ ul.tabs {
 
 }
 
+
+.feedback {
+	width: 100%;
+	padding: 15px;
+	overflow: hidden;
+	background: #f3f3f3;
+        
+}
+
+.feedback li a {
+    color: #292929;
+}
+
+.feedback ul {
+    list-style: none;
+}
+
+.feedback li {
+    padding-bottom: 9px;
+}
+

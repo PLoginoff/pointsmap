@@ -57,7 +57,7 @@ $app['points'] = function() use ($app) {
 $app['search'] = function() use ($app) {
     if ( isset( $_GET['search'] ) ) {
         $search = map(function($o){
-            if (mb_stripos($o['network'], $_GET['search']) !== false) {
+            if (mb_stripos($o['network'] . $o['city'], $_GET['search']) !== false) {
                 return $o;
             } else {
                 return false;
